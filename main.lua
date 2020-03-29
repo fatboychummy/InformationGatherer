@@ -122,8 +122,28 @@ local function main()
 end
 
 local function alt()
+  local modems = {n = 0}
+  local names = peripheral.getNames()
+  for i = 1, #names do
+    if peripheral.getType(names[i]) == "modem" then
+      modems.n = modems.n + 1
+      modems[modems.n] = names[i]
+    end
+  end
+  if modems.n == 0 then error("We need a modem connected!") end
+
+  local modem = inputList(
+    modems,
+    function(x)
+      return peripheral.call(x, "isWireless") and "Wireless" or "Wired"
+    end,
+    "Select the modem you wish to transmit on (max 1)",
+    1
+  )
+
+
   local periphs = inputList(
-    watching,
+    watching or names,
     peripheral.getType,
     "Enter peripheral names to watch."
   )
@@ -132,9 +152,7 @@ local function alt()
 
   local funcsToWatch = funcs or {}
   for i = 1, periphs.n do
-    local methods = peripheral.getMethods(periphs[i])
-    methods.n = #methods
-    funcsToWatch[periphs[i]] = funcsToWatch[periphs[i]] or methods
+    funcsToWatch[periphs[i]] = funcsToWatch[periphs[i]] or peripheral.getMethods(periphs[i])
     funcsToWatch[periphs[i]] = inputList(
       funcsToWatch[periphs[i]],
       function(x)
