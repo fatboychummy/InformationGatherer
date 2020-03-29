@@ -33,8 +33,9 @@ local function readMult(choices, eMessage)
   end
 end
 
-local function inputList(start, bFunc, sText)
+local function inputList(start, bFunc, sText, max)
   start = start or {n = 0}
+  if not start.n then start.n = #start end
   while true do
     term.clear()
     term.setCursorPos(1, 1)
@@ -77,7 +78,11 @@ local function inputList(start, bFunc, sText)
                             ))
       end
     else
-      return start
+      if max and start.n > max then
+        print("Too many inputs, maximum " .. tostring(max) .. ".")
+      else
+        return start
+      end
     end
     os.sleep(1)
   end
